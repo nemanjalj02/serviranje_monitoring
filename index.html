@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predikcija kvaliteta vina</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; background: #f5f5f5; }
+        h1 { color: #722f37; text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+        input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        input.input-error { border: 1.5px solid #c0392b; background: #fff5f5; }
+        .error-msg { display: block; margin-top: 4px; color: #c0392b; font-size: 13px; }
+        button { width: 100%; padding: 12px; background: #722f37; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+        button:hover { background: #8b3a42; }
+        #result { margin-top: 20px; padding: 15px; border-radius: 4px; display: none; text-align: center; font-size: 18px; }
+        .dobro { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .lose { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .nesiguran { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+    </style>
+</head>
+<body>
+    <h1>Predikcija kvaliteta vina</h1>
+
+    <div class="form-group">
+        <label>Fiksna kiselost</label>
+        <input type="number" id="fixed_acidity" step="0.1" value="7.4">
+        <span class="error-msg" id="err_fixed_acidity"></span>
+    </div>
+    <div class="form-group">
+        <label>Isparljiva kiselost</label>
+        <input type="number" id="volatile_acidity" step="0.01" value="0.70">
+        <span class="error-msg" id="err_volatile_acidity"></span>
+    </div>
+    <div class="form-group">
+        <label>Limunska kiselina</label>
+        <input type="number" id="citric_acid" step="0.01" value="0.00">
+        <span class="error-msg" id="err_citric_acid"></span>
+    </div>
+    <div class="form-group">
+        <label>Preostali šećer</label>
+        <input type="number" id="residual_sugar" step="0.1" value="1.9">
+        <span class="error-msg" id="err_residual_sugar"></span>
+    </div>
+    <div class="form-group">
+        <label>Hloridi</label>
+        <input type="number" id="chlorides" step="0.001" value="0.076">
+        <span class="error-msg" id="err_chlorides"></span>
+    </div>
+    <div class="form-group">
+        <label>Slobodni SO2</label>
+        <input type="number" id="free_sulfur_dioxide" step="1" value="11">
+        <span class="error-msg" id="err_free_sulfur_dioxide"></span>
+    </div>
+    <div class="form-group">
+        <label>Ukupni SO2</label>
+        <input type="number" id="total_sulfur_dioxide" step="1" value="34">
+        <span class="error-msg" id="err_total_sulfur_dioxide"></span>
+    </div>
+    <div class="form-group">
+        <label>Gustina</label>
+        <input type="number" id="density" step="0.0001" value="0.9978">
+        <span class="error-msg" id="err_density"></span>
+    </div>
+    <div class="form-group">
+        <label>pH vrednost</label>
+        <input type="number" id="pH" step="0.01" value="3.51">
+        <span class="error-msg" id="err_pH"></span>
+    </div>
+    <div class="form-group">
+        <label>Sulfati</label>
+        <input type="number" id="sulphates" step="0.01" value="0.56">
+        <span class="error-msg" id="err_sulphates"></span>
+    </div>
+    <div class="form-group">
+        <label>Procenat alkohola</label>
+        <input type="number" id="alcohol" step="0.1" value="9.4">
+        <span class="error-msg" id="err_alcohol"></span>
+    </div>
+
+    <button onclick="predict()">Proceni kvalitet vina</button>
+
+    <div id="result"></div>
+
+    <script>
+        const API_BASE = "http://127.0.0.1:8000";
+
+        const fieldRanges = {
+            fixed_acidity:        { min: 3.5,   max: 20,   primer: "7.4" },
+            volatile_acidity:     { min: 0.001, max: 2,    primer: "0.70" },
+            citric_acid:          { min: 0,     max: 1,    primer: "0.00" },
+            residual_sugar:       { min: 0.001, max: 20,   primer: "1.9" },
+            chlorides:            { min: 0.001, max: 1,    primer: "0.076" },
+            free_sulfur_dioxide:  { min: 0.001, max: 400,  primer: "11" },
+            total_sulfur_dioxide: { min: 0.001, max: 300,  primer: "34" },
+            density:              { min: 0.980, max: 1.05, primer: "0.9978" },
+            pH:                   { min: 2.5,   max: 4,    primer: "3.51" },
+            sulphates:            { min: 0.001, max: 10,   primer: "0.56" },
+            alcohol:              { min: 8.0,   max: 20,   primer: "9.4" },
+        };
+
+        function clearErrors() {
+            Object.keys(fieldRanges).forEach(field => {
+                const input = document.getElementById(field);
+                const errSpan = document.getElementById("err_" + field);
+                if (input) input.classList.remove("input-error");
+                if (errSpan) errSpan.textContent = "";
+            });
+        }
+
+        function showGeneralError(div, message) {
+            div.style.display = "block";
+            div.className = "lose";
+            div.innerHTML = `<strong>GREŠKA</strong><br>${message}`;
+        }
+
+        async function predict() {
+            clearErrors();
+            const div = document.getElementById("result");
+            div.style.display = "none";
+
+            const data = {
+                fixed_acidity:        parseFloat(document.getElementById("fixed_acidity").value),
+                volatile_acidity:     parseFloat(document.getElementById("volatile_acidity").value),
+                citric_acid:          parseFloat(document.getElementById("citric_acid").value),
+                residual_sugar:       parseFloat(document.getElementById("residual_sugar").value),
+                chlorides:            parseFloat(document.getElementById("chlorides").value),
+                free_sulfur_dioxide:  parseFloat(document.getElementById("free_sulfur_dioxide").value),
+                total_sulfur_dioxide: parseFloat(document.getElementById("total_sulfur_dioxide").value),
+                density:              parseFloat(document.getElementById("density").value),
+                pH:                   parseFloat(document.getElementById("pH").value),
+                sulphates:            parseFloat(document.getElementById("sulphates").value),
+                alcohol:              parseFloat(document.getElementById("alcohol").value)
+            };
+
+            let response;
+            try {
+                response = await fetch(`${API_BASE}/predict`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+            } catch (networkErr) {
+                showGeneralError(div, "Server trenutno nije dostupan. Proverite konekciju i pokušajte ponovo.");
+                return;
+            }
+
+            let result;
+            try {
+                result = await response.json();
+            } catch (parseErr) {
+                showGeneralError(div, "Neočekivan odgovor servera. Pokušajte ponovo.");
+                return;
+            }
+
+            if (!response.ok) {
+                if (Array.isArray(result.detail)) {
+                    result.detail.forEach(err => {
+                        const field = err.loc[1];
+                        const input = document.getElementById(field);
+                        const errSpan = document.getElementById("err_" + field);
+                        const range = fieldRanges[field];
+
+                        if (input) input.classList.add("input-error");
+                        if (errSpan && range) {
+                            errSpan.textContent = `Unos nije ispravan. Primer tačnog unosa: ${range.primer} (opseg: ${range.min} - ${range.max})`;
+                        }
+                    });
+                } else {
+                    const message = typeof result.detail === "string"
+                        ? result.detail
+                        : "Trenutno ne možemo obraditi zahtev. Pokušajte ponovo.";
+                    showGeneralError(div, message);
+                }
+                return;
+            }
+
+            div.style.display = "block";
+            if (result.probability < 0.55) {
+                div.className = "nesiguran";
+            } else {
+                div.className = result.label === "dobro vino" ? "dobro" : "lose";
+            }
+            div.innerHTML = `<strong>${result.label.toUpperCase()}</strong><br>${result.message}`;
+        }
+    </script>
+</body>
+</html>
