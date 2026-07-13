@@ -21,16 +21,17 @@ Saobraćaj ka API-ju generiše posebna skripta koja simulira mešavinu validnih,
 * RF_Model_wine.ipynb: Jupyter Notebook koji služi za dobijanje modela (dataset, split, HPO pretrage, pruning, finalna evaluacija na test skupu).
 * wine_main.py: FastAPI aplikacija koja učitava model, izlaže `/predict` endpoint, pokreće logovanje i monitoring.
 * wine_schemas.py: Pydantic šeme za validaciju ulaza i izlaza API-ja.
-* wine_database.py: inicijalizacija SQLite baze i logovanje predikcija/incidenata.
-* wine_monitoring.py: praćenje latencije i data drifta (Evidently), generisanje HTML izveštaja na svakih 100 validnih zahteva.
-* simulate_requests.py: skripta koja simulira saobraćaj (validne, nevalidne i drift zahteve) radi testiranja API-ja i punjenja baze.
-* db_report.py: sumarni izveštaj iz baze (statusi zahteva, latencija, monitoring logovi, distribucija labela pre/tokom drifta).
-* index.html: jednostavan HTML frontend za ručno testiranje predikcije preko forme.
-* final_model.joblib: finalni (pruned) istreniran model, koji učitava wine_main.py.
-* winequality-red.csv: dataset korišćen za treniranje i kao referenca za drift monitoring.
-* predictions.db: primer baze sa zabeleženim predikcijama iz jedne simulacije.
-* reports/: primer generisanih drift izveštaja iz jedne simulacije.
-* requirements.txt: spisak potrebnih Python biblioteka i njihovih tačnih verzija.
+* wine_database.py: Inicijalizacija SQLite baze i logovanje predikcija/incidenata.
+* wine_monitoring.py: Praćenje latencije i data drifta (Evidently), generisanje HTML izveštaja na svakih 100 validnih zahteva.
+* simulate_requests.py: Skripta koja simulira saobraćaj (validne, nevalidne i drift zahteve) radi testiranja API-ja i punjenja baze.
+* db_report.py: Izveštaj iz baze (statusi zahteva, latencija, monitoring logovi, distribucija labela pre/tokom drifta).
+* index.html: Jednostavan HTML frontend za ručno testiranje predikcije preko forme.
+* final_model.joblib: Finalni (pruned) istreniran model, koji učitava wine_main.py.
+* winequality-red.csv: Dataset korišćen za treniranje i kao referenca za drift monitoring.
+* predictions.db: Rrimer baze sa zabeleženim predikcijama iz jedne simulacije.
+* reports/: Primer generisanih drift izveštaja iz jedne simulacije.
+* requirements.txt: Spisak potrebnih Python biblioteka i njihovih tačnih verzija.
+* prezentacija.pdf: Opis projekta sa rezultatima i pregled trenutnih praksi u monitoringu kroz dva rada.
 
 
 ## Setup
