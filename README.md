@@ -73,6 +73,6 @@ Za sumarni izveštaj iz baze nakon simulacije:
 python db_report.py
 ```
 
-`predictions.db` i `reports/` u repou predstavljaju rezultate jednog konkretnog pokretanja `simulate_requests.py`, korišćene u prezentaciji/izveštaju. Za novu evidenciju, obrisati oba i ponovo pokrenuti simulaciju.
+Napomena: `predictions.db` i `reports/` u repou predstavljaju rezultate jednog konkretnog pokretanja `simulate_requests.py`, korišćene u prezentaciji/izveštaju. Za novu evidenciju, obrisati oba, pokrenuti servis i simulaciju.
 
 Notebook (RF_Model_wine.ipynb) se pokreće preko `jupyter notebook` ili `jupyter-lab` (ili direktno u editoru sa Jupyter podrškom). `final_model.joblib` je već gotov produkt tog notebook-a i nije neophodno ponovo trenirati model da bi se API pokrenuo.
