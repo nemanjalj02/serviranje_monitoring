@@ -12,7 +12,7 @@ HPO pretraga se radi Optuna bibliotekom (Bajesovska optimizacija) u dva kruga: p
 Oba modela (originalni i pruned) se ocenjuju na nezavisnom test skupu i bira se finalni na osnovu odnosa metrika i kompresije. 
 
 
-Finalni model se servira kao FastAPI servis: ulazni podaci se validiraju (Pydantic), predikcija vraća labelu i procenu sigurnosti (uz upozorenje ako je poverenje ispod praga), a svaki zahtev (uspešan, nevalidan ili neuspeo), kao i eventualni incidenti (pad modela, neispravan izlaz, neobrađena greška) loguju se u SQLite bazu. Jednostavan HTML frontend omogućava ručno testiranje preko forme. Na svakih 100 uspešnih zahteva automatski se proveravaju latencija (avg/min/max/median/P95) i data drift u odnosu na trening podatke (Evidently, Kolmogorov-Smirnov test), a rezultati se čuvaju kao HTML izveštaji. 
+Finalni model se servira kao FastAPI servis: ulazni podaci se validiraju (Pydantic), predikcija vraća labelu i procenu sigurnosti (uz upozorenje ako je poverenje ispod praga), a svaki zahtev (uspešan, nevalidan ili neuspeo), kao i eventualni incidenti (pad modela, neispravan izlaz, neobrađena greška) loguju se u SQLite bazu. Jednostavan HTML frontend omogućava ručno testiranje preko forme. Na svakih 100 uspešnih zahteva automatski se proveravaju latencija (response vreme i round trip vreme) (avg/min/max/median/P95) i data drift u odnosu na trening podatke (Evidently, Kolmogorov-Smirnov test), a rezultati se čuvaju kao HTML izveštaji. 
 
 
 Saobraćaj ka API-ju generiše posebna skripta koja simulira mešavinu validnih, nevalidnih i drift zahteva, dok se nad zabeleženim podacima naknadno pravi analiza rezultata (statusi zahteva, latencija, distribucija labela pre i tokom drifta).
