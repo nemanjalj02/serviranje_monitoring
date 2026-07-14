@@ -31,7 +31,7 @@ Saobraćaj ka API-ju generiše posebna skripta koja simulira mešavinu validnih,
 * predictions.db: primer baze sa zabeleženim predikcijama iz jedne simulacije.
 * reports/: primer generisanih drift izveštaja iz jedne simulacije.
 * requirements.txt: spisak potrebnih Python biblioteka i njihovih tačnih verzija.
-* prezentacija.pdf: opis projekta sa rezultatima i pregled trenutnih praksi u monitoringu kroz dva rada.
+* Prezentacija.pdf: opis projekta sa rezultatima i pregled trenutnih praksi u monitoringu kroz dva rada.
 
 
 ## Setup
